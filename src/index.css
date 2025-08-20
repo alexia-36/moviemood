@@ -1,0 +1,52 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap");
+
+@import "tailwindcss";
+
+body {
+  background-image: url("./hero-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  margin: 0;
+  padding: 0;
+
+  font-family: "DM Sans", serif;
+  font-optical-sizing: auto;
+
+  color: #fff;
+}
+
+.link_navbar {
+  font-weight: 600;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+h1 {
+  @apply mx-auto max-w-4xl text-center text-5xl font-bold leading-tight tracking-[-1%] text-white sm:text-[64px] sm:leading-[76px];
+}
+
+h2 {
+  @apply text-2xl font-bold text-white sm:text-2xl;
+}
+
+@utility text-gradient {
+  @apply bg-linear-to-r from-[#D6C7FF] to-[#AB8BFF] bg-clip-text text-transparent;
+}
+
+@utility fancy-text {
+  -webkit-text-stroke: 5px rgba(206, 206, 251, 0.5);
+  font-size: 190px;
+  font-family: "Bebas Neue", sans-serif;
+}
+
+@utility hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

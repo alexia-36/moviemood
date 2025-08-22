@@ -1,293 +1,213 @@
-// import { useLoaderData } from "react-router-dom";
-
-// const API_BASE_URL = "https://api.themoviedb.org/3/movie";
-// const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-// const API_OPTIONS = {
-//   method: "GET",
-//   headers: {
-//     accept: "application/json",
-//     Authorization: `Bearer ${API_KEY}`,
-//   },
-// };
-
-// export async function loader({ params }) {
-//   const endpoint = `${API_BASE_URL}/${params.id}`;
-//   const response = await fetch(endpoint, API_OPTIONS);
-//   if (!response.ok) {
-//     throw new Error("Failed to fetch movies");
-//   }
-//   const data = await response.json();
-//   return data;
-// }
-
-// export default function Movie() {
-//   const movie = useLoaderData();
-
-//   return "movie";
-//}
-import { useLoaderData } from "react-router-dom";
-
-const API_BASE_URL = "https://api.themoviedb.org/3/movie";
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const API_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  },
-};
+import { useEffect } from "react";
+import { useLoaderData, Link } from "react-router-dom";
+import { requestMovie } from "../requestData";
 
 export async function loader({ params }) {
-  const endpoint = `${API_BASE_URL}/${params.id}`;
-  const response = await fetch(endpoint, API_OPTIONS);
-  if (!response.ok) {
-    throw new Error("Failed to fetch movie");
-  }
-  const data = await response.json();
-  return data;
+  return await requestMovie({ params });
 }
 
 export default function Movie() {
   const movie = useLoaderData();
 
-  // Formatare date și durată
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("ro-RO", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+  // Funcție pentru formatarea numerelor mari
+  const formatNumber = (num) => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + "M";
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + "K";
+    }
+    return num;
   };
 
-  const formatRuntime = (minutes) => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h ${mins}m`;
+  // Funcție pentru a calcula procentajul popularității (maxim 1000)
+  const calculatePopularityPercentage = (popularity) => {
+    return Math.min(100, popularity / 10);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-blue-900 text-white">
-      {/* Backdrop cu titlu și tagline */}
-      <div
-        className="h-[28rem] w-full bg-cover bg-center bg-fixed relative"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.85)), url(https://image.tmdb.org/t/p/w1280${movie.backdrop_path})`,
-        }}
+    <div className="bg-dark-100 text-white rounded-2xl shadow-lg overflow-hidden max-w-6xl mx-auto mt-25">
+      <Link
+        to="/movies"
+        className="absolute top-38 left-11 px-1 py-1 text-white font-bold rounded-lg bg-gradient-to-r from-[#5b6c9f] to-[#486bd1] hover:opacity-70 transition xl:left-17 flex items-center"
       >
-        <div className="absolute bottom-10 left-10 max-w-4xl">
-          <h1 className="text-5xl font-extrabold drop-shadow-lg">
-            {movie.title}
-          </h1>
-          {movie.tagline && (
-            <p className="text-2xl italic text-blue-300 mt-2 drop-shadow">
-              {movie.tagline}
-            </p>
-          )}
+        <i className="bxr bx-arrow-left-stroke text-2xl"></i>
+        Back to all movies
+      </Link>
+      <div className="relative h-96">
+        <img
+          src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+          alt={movie.title}
+          className="w-full h-full object-cover opacity-50"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-dark-100 to-transparent" />
+        <div className="absolute bottom-6 left-6 flex gap-6 items-end">
+          <img
+            src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+            alt={movie.title}
+            className="w-44 rounded-xl shadow-2xl"
+          />
+          <div>
+            <h1 className="text-4xl font-bold">{movie.title}</h1>
+            {movie.tagline && (
+              <p className="italic text-light-200 text-lg mt-2">
+                {movie.tagline}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Conținut principal */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex flex-col lg:flex-row gap-10 items-start">
-          {/* Poster */}
-          <div className="lg:w-2/5 xl:w-1/3 flex justify-center lg:justify-start">
-            <img
-              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              alt={movie.title}
-              className="rounded-xl shadow-2xl w-80 transition-transform duration-300 hover:scale-105"
-            />
+      <div className="p-8">
+        <h2 className="text-2xl font-bold mb-2">Overview</h2>
+        <p className="text-gray-200 mb-6">{movie.overview}</p>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-gray-300 text-sm">
+          <p>
+            <span className="font-semibold text-white">Release:</span>{" "}
+            {movie.release_date}
+          </p>
+          <p>
+            <span className="font-semibold text-white">Runtime:</span>{" "}
+            {movie.runtime} min
+          </p>
+          <p>
+            <span className="font-semibold text-white">Language:</span>{" "}
+            {movie.original_language.toUpperCase()}
+          </p>
+          <p>
+            <span className="font-semibold text-white">Budget:</span> $
+            {movie.budget.toLocaleString()}
+          </p>
+          <p>
+            <span className="font-semibold text-white">Revenue:</span> $
+            {movie.revenue.toLocaleString()}
+          </p>
+          <p>
+            <span className="font-semibold text-white">Rating:</span>{" "}
+            {movie.vote_average} / 10 ({movie.vote_count} votes)
+          </p>
+          <p className="col-span-2">
+            <span className="font-semibold text-white">Genres:</span>{" "}
+            {movie.genres.map((g) => g.name).join(", ")}
+          </p>
+          <p className="col-span-2">
+            <span className="font-semibold text-white">Countries:</span>{" "}
+            {movie.production_countries.map((c) => c.name).join(", ")}
+          </p>
+          <p className="col-span-2">
+            <span className="font-semibold text-white">Companies:</span>{" "}
+            {movie.production_companies.map((c) => c.name).join(", ")}
+          </p>
+        </div>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Scor de popularitate vizual */}
+          <div className="bg-dark-100 border border-light-100/20 rounded-xl p-4">
+            <h3 className="font-bold mb-4 flex items-center">
+              <svg
+                className="w-5 h-5 mr-2 text-yellow-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              Audience Score
+            </h3>
+            <div className="w-full bg-gray-700 rounded-full h-2.5 mb-2">
+              <div
+                className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2.5 rounded-full"
+                style={{ width: `${(movie.vote_average / 10) * 100}%` }}
+              ></div>
+            </div>
+            <p className="text-lg flex items-baseline">
+              <span className="text-2xl font-bold mr-1">
+                {movie.vote_average}
+              </span>
+              <span className="text-gray-400 text-sm">
+                /10 from {formatNumber(movie.vote_count)} votes
+              </span>
+            </p>
           </div>
 
-          {/* Informații - în dreptul posterului */}
-          <div className="lg:w-3/5 xl:w-2/3 bg-gray-900/90 backdrop-blur-sm rounded-2xl p-8 border border-gray-700/50 shadow-2xl">
-            {/* Genuri */}
-            <div className="mb-6">
-              <div className="flex flex-wrap gap-2">
-                {movie.genres.map((genre) => (
-                  <span
-                    key={genre.id}
-                    className="bg-blue-700/70 backdrop-blur-md px-4 py-2 rounded-full text-sm font-medium"
+          {/* Popularity Meter */}
+          <div className="bg-dark-100 border border-light-100/20 rounded-xl p-4">
+            <h3 className="font-bold mb-4 flex items-center">
+              <svg
+                className="w-5 h-5 mr-2 text-purple-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Popularity Meter
+            </h3>
+            <div className="w-full bg-gray-700 rounded-full h-2.5 mb-2">
+              <div
+                className="bg-gradient-to-r from-purple-500 to-pink-500 h-2.5 rounded-full"
+                style={{
+                  width: `${calculatePopularityPercentage(movie.popularity)}%`,
+                }}
+              ></div>
+            </div>
+            <p className="text-lg">
+              <span className="text-2xl font-bold mr-1">
+                {Math.round(movie.popularity)}
+              </span>
+              <span className="text-gray-400 text-sm">
+                current popularity score
+              </span>
+            </p>
+          </div>
+
+          {/* External Links */}
+          <div className="bg-dark-100 border border-light-100/20 rounded-xl p-4 md:col-span-2">
+            <h3 className="font-bold mb-4">External Links</h3>
+            <div className="flex flex-wrap gap-4">
+              {movie.imdb_id && (
+                <a
+                  href={`https://www.imdb.com/title/${movie.imdb_id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center px-4 py-2 bg-yellow-500 text-black rounded-lg font-medium hover:bg-yellow-400 transition"
+                >
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    {genre.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Info grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 bg-gray-800/40 p-6 rounded-lg">
-              <div>
-                <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">
-                  Status
-                </p>
-                <p className="font-semibold text-lg">{movie.status}</p>
-              </div>
-
-              <div>
-                <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">
-                  Data lansării
-                </p>
-                <p className="font-semibold text-lg">
-                  {formatDate(movie.release_date)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">
-                  Durată
-                </p>
-                <p className="font-semibold text-lg">
-                  {formatRuntime(movie.runtime)}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">
-                  Rating
-                </p>
-                <div className="flex items-center">
-                  <span className="text-yellow-400 text-xl mr-2">★</span>
-                  <span className="font-semibold text-lg">
-                    {movie.vote_average.toFixed(1)}/10
-                  </span>
-                  <span className="text-gray-400 text-sm ml-2">
-                    ({movie.vote_count} voturi)
-                  </span>
-                </div>
-              </div>
-
-              {movie.budget > 0 && (
-                <div>
-                  <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">
-                    Buget
-                  </p>
-                  <p className="font-semibold text-lg">
-                    ${movie.budget.toLocaleString()}
-                  </p>
-                </div>
+                    <path d="M18.68 1.15H5.32C3.15 1.15 1.38 2.92 1.38 5.1v13.8c0 2.17 1.77 3.95 3.94 3.95h13.36c2.17 0 3.95-1.77 3.95-3.95V5.1c0-2.18-1.78-3.95-3.95-3.95zm-6.36 15.43c0 .1-.02.19-.06.28-.07.14-.19.24-.34.3-.09.04-.19.06-.29.06h-1.48c-.21 0-.39-.13-.47-.32l-2.03-5.22-2.16 5.22c-.07.17-.24.3-.44.3H4.28c-.11 0-.22-.03-.3-.08a.6.6 0 01-.24-.85l3.57-8.12c.1-.23.33-.38.58-.38.26 0 .49.15.59.38l3.54 8.12c.1.23.03.5-.17.67zm7.6-.19c0 .33-.27.6-.6.6-.33 0-.6-.27-.6-.6V7.2c0-.33.27-.6.6-.6.33 0 .6.27.6.6v9.19z" />
+                  </svg>
+                  View on IMDb
+                </a>
               )}
 
-              {movie.revenue > 0 && (
-                <div>
-                  <p className="text-gray-400 text-sm uppercase tracking-wider mb-1">
-                    Venituri
-                  </p>
-                  <p className="font-semibold text-lg">
-                    ${movie.revenue.toLocaleString()}
-                  </p>
-                </div>
+              {movie.homepage && (
+                <a
+                  href={movie.homepage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center px-4 py-2 bg-gradient-to-r from-[#8e8aff] to-[#7c68ff] text-white rounded-lg font-medium hover:opacity-90 transition"
+                >
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                    />
+                  </svg>
+                  Official Website
+                </a>
               )}
-            </div>
-
-            {/* Overview */}
-            <div className="mb-10">
-              <h2 className="text-2xl font-bold mb-4 text-white border-b border-gray-700 pb-2">
-                Prezentare
-              </h2>
-              <p className="text-lg leading-relaxed text-gray-100">
-                {movie.overview}
-              </p>
-            </div>
-
-            {/* Informații de producție - Grid compact */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Companii de producție */}
-              {movie.production_companies.length > 0 && (
-                <div className="bg-gray-800/60 p-5 rounded-xl">
-                  <h2 className="text-xl font-bold mb-3 text-white">
-                    Companii de producție
-                  </h2>
-                  <div className="space-y-3">
-                    {movie.production_companies.map((company) => (
-                      <div key={company.id} className="flex items-center">
-                        {company.logo_path ? (
-                          <img
-                            src={`https://image.tmdb.org/t/p/w200${company.logo_path}`}
-                            alt={company.name}
-                            className="h-8 mr-3 bg-white p-1 rounded"
-                          />
-                        ) : (
-                          <div className="h-8 w-8 mr-3 bg-gray-700 rounded flex items-center justify-center">
-                            <span className="text-xs">🎬</span>
-                          </div>
-                        )}
-                        <span>{company.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Țări de producție */}
-              {movie.production_countries.length > 0 && (
-                <div className="bg-gray-800/60 p-5 rounded-xl">
-                  <h2 className="text-xl font-bold mb-3 text-white">
-                    Țări de producție
-                  </h2>
-                  <div className="space-y-2">
-                    {movie.production_countries.map((country) => (
-                      <div
-                        key={country.iso_3166_1}
-                        className="flex items-center"
-                      >
-                        <span className="text-2xl mr-2">🌍</span>
-                        <span>{country.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Limbi vorbite */}
-              {movie.spoken_languages.length > 0 && (
-                <div className="bg-gray-800/60 p-5 rounded-xl">
-                  <h2 className="text-xl font-bold mb-3 text-white">
-                    Limbi vorbite
-                  </h2>
-                  <div className="space-y-2">
-                    {movie.spoken_languages.map((language) => (
-                      <div
-                        key={language.iso_639_1}
-                        className="flex items-center"
-                      >
-                        <span className="text-2xl mr-2">🗣️</span>
-                        <span>{language.english_name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Link-uri externe */}
-              <div className="bg-gray-800/60 p-5 rounded-xl">
-                <h2 className="text-xl font-bold mb-3 text-white">
-                  Mai multe informații
-                </h2>
-                <div className="space-y-3">
-                  {movie.imdb_id && (
-                    <a
-                      href={`https://www.imdb.com/title/${movie.imdb_id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-blue-400 hover:text-blue-300 transition"
-                    >
-                      <span className="text-2xl mr-2">🎭</span>
-                      <span>Pagina IMDb</span>
-                    </a>
-                  )}
-                  {movie.homepage && (
-                    <a
-                      href={movie.homepage}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center text-blue-400 hover:text-blue-300 transition"
-                    >
-                      <span className="text-2xl mr-2">🌐</span>
-                      <span>Site-ul oficial</span>
-                    </a>
-                  )}
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -4,27 +4,13 @@ import { useDebounce } from "use-debounce";
 
 import Search from "../components/Search";
 import MoviesCard from "../components/MoviesCard";
+import { requestMovies } from "../requestData";
 
-const API_BASE_URL = "https://api.themoviedb.org/3";
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const API_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  },
-};
-//functie care incarca filmele
-export async function loader(text = "") {
-  const endpoint = text
-    ? `${API_BASE_URL}/search/movie?query=${text}`
-    : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
-  const response = await fetch(endpoint, API_OPTIONS);
-  if (!response.ok) {
-    throw new Error("Failed to fetch movies");
-  }
-  const data = await response.json();
-  return data.results;
+import { updateSearchCount } from "../appwrite";
+
+//returneaza filmele curente
+export async function loader() {
+  return await requestMovies();
 }
 
 export default function Movies() {
@@ -41,19 +27,33 @@ export default function Movies() {
     </div>
   ));
 
-  // apeleaza loader pentru a incarca filmele cautate
+  // apeleaza requestMovies pentru a incarca filmele cautate
   useEffect(() => {
-    async function fetchMovies() {
-      const response = await loader(searchedInputDebounced);
+    async function requestSearchedhMovies() {
+      const response = await requestMovies(searchedInputDebounced);
       setMovies(response || []);
+      if (searchedInputDebounced && response.results.length > 0) {
+        await updateSearchCount(searchedInputDebounced, response.results[0]);
+      }
     }
-    fetchMovies();
+    requestSearchedhMovies();
   }, [searchedInputDebounced]);
 
   return (
-    <div>
+    <div className="space-y-9">
+      <h1 className="mt-[70px]">
+        Find <span className="text-gradient">Movies</span> You'll Enjoy Without
+        the Hassle
+      </h1>
+
       <Search searchInput={searchInput} setSearchInput={setSearchInput} />
-      {movies && moviesEl}
+      <h2 className="mt-20 mb-4 text-[#aabcf5]  text-2xl font-bold sm:text-3xl">
+        All Movies
+      </h2>
+
+      <ul className="grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        {movies && moviesEl}
+      </ul>
     </div>
   );
 }

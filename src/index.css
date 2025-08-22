@@ -3,21 +3,36 @@
 
 @import "tailwindcss";
 
-body {
-  background-image: url("./hero-bg.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  margin: 0;
-  padding: 0;
+@theme {
+  --color-primary: #030014;
 
-  font-family: "DM Sans", serif;
-  font-optical-sizing: auto;
+  --color-light-100: #cecefb;
+  --color-light-200: #a8b5db;
 
-  color: #fff;
+  --color-gray-100: #9ca4ab;
+
+  --color-dark-100: #0f0d23;
+
+  --font-dm-sans: DM Sans, sans-serif;
+
+  --breakpoint-xs: 480px;
+
+  --background-image-hero-pattern: url("/hero-bg.png");
 }
 
+body {
+  font-family: "DM Sans", serif;
+  font-optical-sizing: auto;
+  background-image: url("/hero-bg.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+body.movie-page {
+  background-color: #000000;
+  background-image: none;
+}
 .link_navbar {
   font-weight: 600;
   margin-right: 1rem;
@@ -25,11 +40,68 @@ body {
 }
 
 h1 {
-  @apply mx-auto max-w-4xl text-center text-5xl font-bold leading-tight tracking-[-1%] text-white sm:text-[64px] sm:leading-[76px];
+  @apply mx-auto max-w-4xl text-center text-4xl font-bold leading-tight tracking-[-1%] text-white sm:text-[64px] sm:leading-[76px];
 }
 
-h2 {
-  @apply text-2xl font-bold text-white sm:text-2xl;
+/*  Movie card*/
+@layer components {
+  .movie-card {
+    @apply bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10;
+
+    & img {
+      @apply rounded-lg h-auto w-full;
+    }
+
+    & h3 {
+      @apply text-white font-bold text-base line-clamp-1;
+    }
+
+    & .content {
+      @apply mt-2 flex flex-row items-center flex-wrap gap-2;
+    }
+
+    & .rating {
+      @apply flex flex-row items-center gap-1;
+    }
+
+    & .rating img {
+      @apply size-4 object-contain;
+    }
+
+    & .rating p {
+      @apply font-bold text-base text-white;
+    }
+
+    & .content span {
+      @apply text-sm text-gray-100;
+    }
+
+    & .content .lang {
+      @apply capitalize text-gray-100 font-medium text-base;
+    }
+
+    & .content .year {
+      @apply text-gray-100 font-medium text-base;
+    }
+  }
+}
+
+/* search */
+
+.search {
+  @apply w-full bg-light-100/5 px-4 py-3 rounded-lg mt-10 max-w-3xl mx-auto;
+
+  & div {
+    @apply relative flex items-center;
+  }
+
+  & img {
+    @apply absolute left-2 h-5 w-5;
+  }
+
+  & input {
+    @apply w-full bg-transparent py-2 sm:pr-10 pl-10 text-base text-gray-200 placeholder-light-200 outline-hidden;
+  }
 }
 
 @utility text-gradient {
@@ -48,5 +120,63 @@ h2 {
 
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/* trending */
+.trending {
+  margin-top: 5.5rem;
+  width: 100%;
+  position: relative;
+}
+.trending h2 {
+  margin-bottom: 3rem;
+}
+
+.trending ul {
+  display: flex;
+  gap: 15px;
+  padding: 10px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.trending ul::-webkit-scrollbar {
+  display: none;
+}
+
+.trending ul li {
+  flex: 0 0 auto;
+  width: 230px;
+  display: flex;
+  align-items: center;
+}
+
+.trending ul li p {
+  font-family: "Bebas Neue", sans-serif;
+  font-size: 120px;
+  margin: 0;
+  color: transparent;
+  -webkit-text-stroke: 3px rgba(206, 206, 251, 0.5);
+  line-height: 1;
+}
+
+.trending ul li img {
+  width: 127px;
+  height: 163px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-left: 1px;
+}
+
+@media (max-width: 480px) {
+  .trending ul li {
+    width: 180px;
+  }
+
+  .trending ul li p {
+    font-size: 80px;
   }
 }

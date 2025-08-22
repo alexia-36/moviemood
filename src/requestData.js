@@ -17,6 +17,7 @@ export async function requestMovies(text = "") {
     throw new Error("Failed to fetch movies");
   }
   const data = await response.json();
+  console.log(data);
   return data.results;
 }
 

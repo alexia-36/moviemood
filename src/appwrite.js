@@ -15,7 +15,7 @@ export async function updateSearchCount(searchTerm, movie) {
   //verificam daca avem deja un document cu acelasi searchInput
   try {
     const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
-      Query.equal("searchTerm", searchTerm),
+      Query.equal("searchTerm", searchTerm.toLowerCase()),
     ]);
 
     //daca avem deja un document, il actualizam
@@ -28,14 +28,14 @@ export async function updateSearchCount(searchTerm, movie) {
       //daca nu avem, cream unul nou
     } else {
       await database.createDocument(DATABASE_ID, COLLECTION_ID, ID.unique(), {
-        searchTerm,
+        searchTerm: searchTerm.toLowerCase(),
         count: 1,
         movie_id: movie.id,
         poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
       });
     }
   } catch (error) {
-    console.error(error);
+    console.error("Appwrite error:", JSON.stringify(error, null, 2));
   }
 }
 
@@ -43,7 +43,7 @@ export async function getTrendingMovies() {
   try {
     const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [
       Query.orderDesc("count"),
-      Query.limit(5),
+      Query.limit(6),
     ]);
 
     return result.documents;

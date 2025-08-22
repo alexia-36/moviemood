@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 import { getTrendingMovies } from "../appwrite";
 
@@ -16,13 +17,18 @@ export default function Home() {
   const trendingMoviesEl = trendingMovies.map((movie, index) => (
     <li key={movie.$id}>
       <p>{index + 1}</p>
-      <img src={movie.poster_url} alt={movie.title} />
+      <Link to={`/movies/${movie.movie_id}`}>
+        <img
+          src={movie.poster_url ? movie.poster_url : "../public/no-movie.png"}
+          alt={movie.searchTerm}
+        />
+      </Link>
     </li>
   ));
 
   return (
     <div className="flex flex-col items-center justify-center ">
-      <img src="./hero.png" alt="Hero image" className="w-150 mt-1" />
+      <img src="../public/hero.png" alt="Hero image" className="w-150 mt-1" />
       <h1 className="mt-[-50px]">
         Find your next favorite film with
         <span className="text-gradient"> MovieMood</span>

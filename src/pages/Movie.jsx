@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLoaderData, Link } from "react-router-dom";
+import { useLoaderData, Link, useLocation } from "react-router-dom";
 import { requestMovie } from "../requestData";
 
 export async function loader({ params }) {
@@ -8,6 +8,10 @@ export async function loader({ params }) {
 
 export default function Movie() {
   const movie = useLoaderData();
+  const location = useLocation();
+
+  const searchParams = location.state?.searchParams || "";
+  const genre = location.state?.genre || "all";
 
   // Funcție pentru formatarea numerelor mari
   const formatNumber = (num) => {
@@ -27,15 +31,21 @@ export default function Movie() {
   return (
     <div className="bg-dark-100 text-white rounded-2xl shadow-lg overflow-hidden max-w-6xl mx-auto mt-25">
       <Link
-        to="/movies"
+        to={`/movies?${searchParams}`}
         className="absolute top-38 left-11 px-1 py-1 text-white font-bold rounded-lg bg-gradient-to-r from-[#5b6c9f] to-[#486bd1] hover:opacity-70 transition xl:left-17 flex items-center"
       >
         <i className="bxr bx-arrow-left-stroke text-2xl"></i>
-        Back to all movies
+        Back to {genre} movies
       </Link>
       <div className="relative h-96">
         <img
-          src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
+          src={
+            movie.backdrop_path
+              ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}`
+              : movie.poster_path
+              ? `https://image.tmdb.org/t/p/original${movie.poster_path}`
+              : "/no-movie.png" // fallback final
+          }
           alt={movie.title}
           className="w-full h-full object-cover opacity-50"
         />

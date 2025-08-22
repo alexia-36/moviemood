@@ -117,8 +117,6 @@ export default function Movies() {
         <button className="px-4 py-2 rounded-full bg-[#6b66ef] hover:bg-[#6385ed] text-white font-medium transition" onClick={() => handleFilter("genre", "all")}>All</button>
      </section>
 
-
-
       <ul className="grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {movies && moviesEl}
       </ul>

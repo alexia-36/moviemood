@@ -5,7 +5,7 @@ export default function Header() {
     <header className=" flex justify-between items-center  ">
       <Link to="/">
         <img
-          src="../public/logo2.svg"
+          src="/logo2.svg"
           className="w-13 bg-gradient-to-r from-[#6b66ef] to-[#6385ed]  p-1 rounded-2xl"
         />
       </Link>

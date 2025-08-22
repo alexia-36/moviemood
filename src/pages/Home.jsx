@@ -19,7 +19,7 @@ export default function Home() {
       <p>{index + 1}</p>
       <Link to={`/movies/${movie.movie_id}`}>
         <img
-          src={movie.poster_url ? movie.poster_url : "../public/no-movie.png"}
+          src={movie.poster_url ? movie.poster_url : "/no-movie.png"}
           alt={movie.searchTerm}
         />
       </Link>
@@ -28,7 +28,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center ">
-      <img src="../public/hero.png" alt="Hero image" className="w-150 mt-1" />
+      <img src="/hero.png" alt="Hero image" className="w-150 mt-1" />
       <h1 className="mt-[-50px]">
         Find your next favorite film with
         <span className="text-gradient"> MovieMood</span>
